@@ -64,14 +64,11 @@ const Navigation = () => {
                 Hotels
               
             </Link>
-            <li>
-              <a 
-                href="#contact" 
-                className="relative px-4 py-2 no-underline text-gray-600 font-medium rounded-lg transition-all duration-200 hover:text-blue-600 hover:bg-gray-50 after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-blue-600 after:to-purple-600 after:transition-all after:duration-200 hover:after:w-4/5"
-              >
-                Contact
-              </a>
-            </li>
+            <Link to="/contact" className="relative px-4 py-2 no-underline text-gray-600 font-medium rounded-lg transition-all duration-200 hover:text-blue-600 hover:bg-gray-50 after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-blue-600 after:to-purple-600 after:transition-all after:duration-200 hover:after:w-4/5">
+              
+                Contact Us
+              
+            </Link>
           </ul>
 
           {/* Actions */}

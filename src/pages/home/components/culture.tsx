@@ -1,4 +1,6 @@
-import { cultureItems } from "../../../data/data";
+import { Link } from "react-router-dom";
+import cultureItems from "../../../data/culture";
+
 
 const Culture = () => {
   return (
@@ -26,50 +28,45 @@ const Culture = () => {
 
         {/* Culture Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {cultureItems.map((item) => (
+          {cultureItems.slice(0,6).map((item) => (
             <div 
-              key={item.id} 
-              className="group bg-white rounded-2xl overflow-hidden shadow-md transition-all duration-200 border border-gray-200 hover:-translate-y-2 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]"
-            >
-              {/* Culture Image with Overlay */}
-              <div className="relative h-[250px] overflow-hidden">
-                <img 
-                  src={item.image} 
-                  alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-                {/* Overlay with Icon */}
-                <div 
-                  className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70 flex items-end p-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                >
-                  <span 
-                    className="text-5xl"
-                    style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3))' }}
-                  >
-                    {item.icon}
-                  </span>
+                key={item.id}
+               
+                className="group bg-white rounded-2xl overflow-hidden shadow-md transition-all duration-300 border border-gray-200 hover:-translate-y-2 hover:shadow-2xl cursor-pointer"
+              >
+                {/* Image */}
+                <div className="relative h-[200px] overflow-hidden">
+                  <img 
+                    src={item.image} 
+                    alt={item.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 flex items-end p-4">
+                    <span className="text-4xl" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }}>
+                      {item.icon}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Culture Content */}
-              <div className="p-8">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  {item.description}
-                </p>
-
-                {/* Culture Link Button */}
-                <button 
-                  className="group/btn inline-flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold text-white transition-all duration-200 hover:translate-x-1 hover:shadow-lg"
+                {/* Content */}
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                    {item.shortDescription}
+                  </p>
+                 <Link to={'/cultures/' + item.id}>
+                  <button 
+                  className="group/btn inline-flex items-center gap-2 px-6 py-4 rounded-xl w-full text-center text-sm font-semibold text-white transition-all duration-200 hover:translate-x-1 hover:shadow-lg"
                   style={{ background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)' }}
                 >
-                  Explore Culture
+                  Explore {item.category}
                   <span className="transition-transform duration-200 group-hover/btn:translate-x-1">→</span>
-                </button>
+                  </button>
+                 </Link>
+                </div>
               </div>
-            </div>
           ))}
         </div>
 

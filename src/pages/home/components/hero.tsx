@@ -52,7 +52,9 @@ const HomeHero = () => {
             <span 
               className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
             />
-            <span className="relative">Start Your Adventure</span>
+            <a href="#destinations">
+              <span className="relative">Start Your Adventure</span>
+            </a>
             <span className="relative inline-block ml-2 transition-transform duration-200 group-hover:translate-x-1">
               →
             </span>

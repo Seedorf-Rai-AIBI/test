@@ -1,4 +1,6 @@
-import { accommodations } from "../../../data/data";
+// import { accommodations } from "../../../data/data";
+import { Link } from "react-router-dom";
+import accommodations from "../../../data/hotel";
 
 const Accommodations = () => {
   return (
@@ -26,7 +28,7 @@ const Accommodations = () => {
 
         {/* Accommodations Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-          {accommodations.map((accommodation) => (
+          {accommodations.slice(0,6).map((accommodation) => (
             <div 
               key={accommodation.id} 
               className="bg-white rounded-2xl overflow-hidden shadow-md transition-all duration-200 border border-gray-200 flex flex-col hover:-translate-y-2 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]"
@@ -63,7 +65,7 @@ const Accommodations = () => {
 
                 {/* Description */}
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  {accommodation.description}
+                  {accommodation.shortDescription}
                 </p>
 
                 {/* Amenities Section */}
@@ -91,7 +93,8 @@ const Accommodations = () => {
                     </span>
                     <span className="text-sm text-gray-600">/night</span>
                   </div>
-                  <button 
+                  <Link to={'/accommodations/' + accommodation.id}>
+                   <button 
                     className="group relative px-6 py-2 rounded-xl text-sm font-semibold tracking-wide text-white border-2 border-transparent shadow-sm transition-all duration-200 inline-flex items-center justify-center overflow-hidden hover:-translate-y-1 hover:shadow-2xl active:-translate-y-0.5 active:shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-blue-200 focus-visible:outline-offset-2"
                     style={{ background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)' }}
                     onMouseEnter={(e) => {
@@ -106,12 +109,24 @@ const Accommodations = () => {
                     />
                     <span className="relative">Book Now</span>
                   </button>
+                  </Link>
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
+      <div className="text-center mt-8">
+          <Link to="/accommodations" 
+             className="group/btn relative w-full px-6 py-2 rounded-xl text-sm font-semibold tracking-wide text-white border-2 border-transparent shadow-sm transition-all duration-200 inline-flex items-center justify-center overflow-hidden hover:-translate-y-1 hover:shadow-xl active:-translate-y-0.5 active:shadow-lg sm:w-1/4 focus-visible:outline-4 focus-visible:outline-blue-200 focus-visible:outline-offset-2"
+                      style={{ background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)' }}
+          >
+            <span 
+              className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            />
+            <span className="relative">View All Hotels</span>
+          </Link>
+        </div>
     </section>
   );
 };

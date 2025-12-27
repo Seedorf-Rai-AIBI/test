@@ -1,107 +1,9 @@
 import { useState } from "react";
+import cultureItems from "../../data/culture";
+import { Link } from "react-router-dom";
 
 // Culture items data
-const cultureItems = [
-  {
-    id: 1,
-    title: "Buddhist Monasteries",
-    description: "Ancient monasteries perched on mountain slopes, where monks practice centuries-old traditions and visitors find spiritual serenity.",
-    image: "https://images.unsplash.com/photo-1548013146-72479768bada?w=800&q=80",
-    icon: "🏛️",
-    category: "Spiritual",
-    highlights: ["Prayer Ceremonies", "Sacred Architecture", "Meditation Sessions"],
-    bestTime: "Year Round",
-    experiences: 15
-  },
-  {
-    id: 2,
-    title: "Traditional Festivals",
-    description: "Vibrant celebrations featuring masked dances, traditional music, and colorful costumes that bring communities together.",
-    image: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80",
-    icon: "🎭",
-    category: "Celebration",
-    highlights: ["Losar Festival", "Saga Dawa", "Pang Lhabsol"],
-    bestTime: "Jan-Feb, May-Jun",
-    experiences: 12
-  },
-  {
-    id: 3,
-    title: "Local Handicrafts",
-    description: "Exquisite handwoven textiles, Thangka paintings, and traditional crafts passed down through generations.",
-    image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=800&q=80",
-    icon: "🎨",
-    category: "Art",
-    highlights: ["Carpet Weaving", "Thangka Painting", "Wood Carving"],
-    bestTime: "Year Round",
-    experiences: 8
-  },
-  {
-    id: 4,
-    title: "Traditional Cuisine",
-    description: "Authentic Himalayan flavors with momos, thukpa, and unique local dishes that tell the story of mountain culture.",
-    image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=800&q=80",
-    icon: "🍜",
-    category: "Culinary",
-    highlights: ["Momo Making", "Chhang Tasting", "Traditional Meals"],
-    bestTime: "Year Round",
-    experiences: 10
-  },
-  {
-    id: 5,
-    title: "Folk Music & Dance",
-    description: "Traditional performances featuring indigenous instruments and dances that express the soul of Sikkimese culture.",
-    image: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80",
-    icon: "🎵",
-    category: "Performance",
-    highlights: ["Maruni Dance", "Traditional Songs", "Cultural Shows"],
-    bestTime: "Festival Seasons",
-    experiences: 6
-  },
-  {
-    id: 6,
-    title: "Prayer Flags & Rituals",
-    description: "Learn about the sacred tradition of prayer flags and participate in blessing ceremonies that connect earth and sky.",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-    icon: "🎏",
-    category: "Spiritual",
-    highlights: ["Flag Meanings", "Blessing Rituals", "Sacred Sites"],
-    bestTime: "Year Round",
-    experiences: 7
-  },
-  {
-    id: 7,
-    title: "Local Villages",
-    description: "Immerse yourself in authentic village life, experiencing traditional homes and the warm hospitality of local families.",
-    image: "https://images.unsplash.com/photo-1605640840605-14ac1855827b?w=800&q=80",
-    icon: "🏘️",
-    category: "Heritage",
-    highlights: ["Homestays", "Village Tours", "Local Lifestyle"],
-    bestTime: "March-November",
-    experiences: 9
-  },
-  {
-    id: 8,
-    title: "Traditional Medicine",
-    description: "Discover ancient healing practices and herbal remedies rooted in Tibetan medical traditions.",
-    image: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800&q=80",
-    icon: "🌿",
-    category: "Wellness",
-    highlights: ["Herbal Medicine", "Healing Practices", "Wellness Tours"],
-    bestTime: "Year Round",
-    experiences: 5
-  },
-  {
-    id: 9,
-    title: "Sacred Lakes & Sites",
-    description: "Visit holy lakes and pilgrimage sites that hold deep spiritual significance in local beliefs and traditions.",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-    icon: "💧",
-    category: "Spiritual",
-    highlights: ["Tsomgo Lake", "Gurudongmar Lake", "Sacred Caves"],
-    bestTime: "May-October",
-    experiences: 11
-  }
-];
+
 
 const CulturePage = () => {
   const [filter, setFilter] = useState("All");
@@ -180,14 +82,7 @@ const CulturePage = () => {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white text-sm animate-bounce max-md:hidden">
-          <div className="relative w-6 h-10 border-2 border-white rounded-xl">
-            <div 
-              className="absolute top-2 left-1/2 -translate-x-1/2 w-1 h-2 bg-white rounded-sm animate-[scroll_2s_ease-in-out_infinite]"
-            />
-          </div>
-          <span>Explore Culture</span>
-        </div>
+        
       </section>
 
       {/* Filter Section */}
@@ -287,6 +182,7 @@ const CulturePage = () => {
                   </div>
 
                   {/* Action Button */}
+                  <Link to={'/cultures/' + item.id}>
                   <button 
                     className="group/btn relative w-full px-6 py-3 rounded-xl text-sm font-semibold tracking-wide text-white border-2 border-transparent shadow-sm transition-all duration-200 inline-flex items-center justify-center overflow-hidden hover:-translate-y-1 hover:shadow-xl active:-translate-y-0.5 active:shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-blue-200 focus-visible:outline-offset-2"
                     style={{ background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)' }}
@@ -299,6 +195,7 @@ const CulturePage = () => {
                       →
                     </span>
                   </button>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -318,24 +215,7 @@ const CulturePage = () => {
           )}
 
           {/* Section Footer */}
-          <div className="text-center">
-            <button 
-              className="group relative px-10 py-4 rounded-xl text-lg font-semibold tracking-wide border-2 shadow-sm transition-all duration-200 inline-flex items-center justify-center overflow-hidden hover:-translate-y-1 hover:shadow-2xl active:-translate-y-0.5 active:shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-blue-200 focus-visible:outline-offset-2"
-              style={{ 
-                background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)',
-                color: 'white',
-                borderColor: 'transparent'
-              }}
-            >
-              <span 
-                className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-              />
-              <span className="relative">Browse All Experiences</span>
-              <span className="relative inline-block ml-2 transition-transform duration-200 group-hover:translate-x-1">
-                →
-              </span>
-            </button>
-          </div>
+         
         </div>
       </section>
 

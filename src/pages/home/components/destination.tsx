@@ -64,7 +64,7 @@ const Destinations = () => {
                   </div>
                   <div className="flex items-center gap-1 text-gray-600 text-sm">
                     <span className="text-lg">👥</span>
-                    <span>{destination.minAge}</span>
+                    <span>{destination.maxGuests}</span>
                   </div>
                 </div>
 
@@ -81,15 +81,16 @@ const Destinations = () => {
                 </div>
 
                 {/* Link */}
-                <a 
-                  href={destination.link} 
+                <Link to={
+                  `/destinations/${destination.id}`
+                }
                   className="group inline-flex items-center gap-2 text-blue-600 font-semibold no-underline transition-all duration-200 hover:gap-4"
                 >
                   Explore {destination.name}
                   <span className="transition-transform duration-200 group-hover:translate-x-1">
                     →
                   </span>
-                </a>
+                </Link>
               </div>
             </div>
           ))}

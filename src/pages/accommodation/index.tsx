@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 // Accommodations data
 const accommodations = [
@@ -189,14 +190,7 @@ const AccommodationsPage = () => {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white text-sm animate-bounce max-md:hidden">
-          <div className="relative w-6 h-10 border-2 border-white rounded-xl">
-            <div 
-              className="absolute top-2 left-1/2 -translate-x-1/2 w-1 h-2 bg-white rounded-sm animate-[scroll_2s_ease-in-out_infinite]"
-            />
-          </div>
-          <span>Find Your Stay</span>
-        </div>
+        
       </section>
 
       {/* Filter Section */}
@@ -308,7 +302,8 @@ const AccommodationsPage = () => {
                       </span>
                       <span className="text-sm text-gray-600">/night</span>
                     </div>
-                    <button 
+                    <Link to={'/accommodations/' + accommodation.id}>
+                      <button 
                       className="group/btn relative px-6 py-2 rounded-xl text-sm font-semibold tracking-wide text-white border-2 border-transparent shadow-sm transition-all duration-200 inline-flex items-center justify-center overflow-hidden hover:-translate-y-1 hover:shadow-xl active:-translate-y-0.5 active:shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-blue-200 focus-visible:outline-offset-2"
                       style={{ background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)' }}
                     >
@@ -317,6 +312,7 @@ const AccommodationsPage = () => {
                       />
                       <span className="relative">Book Now</span>
                     </button>
+                    </Link>
                   </div>
                 </div>
               </div>

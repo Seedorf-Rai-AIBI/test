@@ -189,30 +189,13 @@ const ActivityDetailPage: React.FC = () => {
                 What to Bring
               </h2>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <li className="flex items-start gap-2">
+                {(activity.whatToBring ?? []).map((item: string, idx: number) => (
+                  <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-1">→</span>
-                  <span className="text-slate-700">Comfortable clothing</span>
+                  <span className="text-slate-700">{item}</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">→</span>
-                  <span className="text-slate-700">Valid ID proof</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">→</span>
-                  <span className="text-slate-700">Water bottle</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">→</span>
-                  <span className="text-slate-700">Sunscreen & sunglasses</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">→</span>
-                  <span className="text-slate-700">Camera (optional)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">→</span>
-                  <span className="text-slate-700">Personal medications</span>
-                </li>
+                ))}
+                
               </ul>
             </div>
           </div>

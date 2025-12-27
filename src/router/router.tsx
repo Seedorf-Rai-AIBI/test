@@ -7,6 +7,11 @@ import CulturePage from "../pages/cultures";
 import AccommodationsPage from "../pages/accommodation";
 import TourDetailPage from "../pages/destinations/detail";
 import ActivityDetailPage from "../pages/activities/detail";
+import AccommodationDetailPage from "../pages/accommodation/detail";
+import CabsListingPage from "../pages/cabs";
+import BikesListingPage from "../pages/bikes";
+import CultureDetailPage from "../pages/cultures/detail";
+import ContactPage from "../pages/contact";
 
 
 const router = createBrowserRouter([
@@ -41,6 +46,26 @@ const router = createBrowserRouter([
          {
           path: '/accommodations',
           element: <AccommodationsPage></AccommodationsPage>
+        },
+        {
+          path: '/accommodations/:id',
+          element: <AccommodationDetailPage></AccommodationDetailPage>
+        },
+        {
+          path: '/cabs',
+          element: <CabsListingPage></CabsListingPage>
+        },
+        {
+          path: '/bikes',
+          element: <BikesListingPage></BikesListingPage>
+        },
+        {
+          path: '/cultures/:id',
+          element: <CultureDetailPage></CultureDetailPage>
+        },
+        {
+          path: '/contact',
+          element: <ContactPage></ContactPage>
         }
       ]
    }

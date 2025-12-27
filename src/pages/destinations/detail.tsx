@@ -53,10 +53,15 @@ const TourDetailPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div
-        className="relative h-[600px] bg-cover bg-center flex items-center justify-center overflow-hidden"
+        className="relative h-[600px] bg-cover bg-center flex items-center justify-center overflow-hidden opacity-[0.95]"
         style={{ backgroundImage: `url('${heroImage}')` }}
       >
-        <div  style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%);', opacity: 0.5 }} className="absolute inset-0 "></div>
+        <div 
+          className="absolute inset-0 z-10"
+          style={{ 
+            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.7) 100%)'
+          }}
+        />
         <div
           className="absolute inset-0 z-10"
           style={{ background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%)' }}

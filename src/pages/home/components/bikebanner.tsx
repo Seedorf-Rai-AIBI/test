@@ -26,7 +26,7 @@ export default function BikeBanner() {
             Book reliable cabs instantly. Travel comfortably and safely with our trusted fleet of professional drivers.
           </p>
           <div className="flex  justify-center gap-4">
-              <Link to="/cabs">
+              <Link to="/bikes">
                <button 
                   className="group relative w-full px-8 py-3 rounded-xl text-sm font-semibold tracking-wide text-white border-2 border-transparent shadow-sm transition-all duration-200 inline-flex items-center justify-center overflow-hidden hover:-translate-y-1 hover:shadow-2xl active:-translate-y-0.5 active:shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-blue-200 focus-visible:outline-offset-2"
                   style={{ background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)' }}
