@@ -116,7 +116,7 @@ const accommodations = [
 const AccommodationsPage = () => {
   const [filter, setFilter] = useState("All");
   
-  const categories = ["All", "Luxury Resort", "Boutique Hotel", "Heritage Property", "Heritage Hotel", "Homestay", "Business Hotel", "Eco Resort", "Luxury Hotel", "Budget Hotel"];
+  
   
   const filteredAccommodations = filter === "All" 
     ? accommodations 
