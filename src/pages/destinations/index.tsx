@@ -213,7 +213,7 @@ const DestinationsPage = () => {
           )}
 
           {/* Section Footer */}
-          <div className="text-center">
+          {/* <div className="text-center">
             <button 
               className="group relative px-10 py-4 rounded-xl text-lg font-semibold tracking-wide border-2 shadow-sm transition-all duration-200 inline-flex items-center justify-center overflow-hidden hover:-translate-y-1 hover:shadow-2xl active:-translate-y-0.5 active:shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-blue-200 focus-visible:outline-offset-2"
               style={{ 
@@ -230,7 +230,7 @@ const DestinationsPage = () => {
                 →
               </span>
             </button>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -254,15 +254,19 @@ const DestinationsPage = () => {
             Plan your perfect Sikkim journey with our expert guides and local insights
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
+            <Link to={'/contact'}>
+             <button 
               className="group px-10 py-4 bg-white text-purple-600 rounded-xl font-semibold text-lg hover:bg-gray-50 hover:-translate-y-1 transition-all duration-200 shadow-xl inline-flex items-center justify-center"
             >
               <span>Plan Your Trip</span>
               <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
             </button>
-            <button className="px-10 py-4 bg-transparent text-white border-2 border-white rounded-xl font-semibold text-lg hover:bg-white/10 hover:-translate-y-1 transition-all duration-200 backdrop-blur-sm">
+            </Link>
+            <Link to={'/contact'}>
+              <button className="px-10 py-4 bg-transparent text-white border-2 border-white rounded-xl font-semibold text-lg hover:bg-white/10 hover:-translate-y-1 transition-all duration-200 backdrop-blur-sm">
               Contact Us
-            </button>
+            </button> 
+            </Link>
           </div>
         </div>
       </section>

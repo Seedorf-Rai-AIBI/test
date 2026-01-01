@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { Car, Users, DollarSign } from 'lucide-react';
 import cabsData from '../../data/cabs';
+import CabBookingModal from './modal';
+import { Link } from 'react-router-dom';
 
 
 export default function CabsListingPage() {
-  const [selectedCab, setSelectedCab] = useState(null);
-
-  const handleBookNow = (cab: any) => {
-    setSelectedCab(cab);
-    // Here you would open your booking modal
-    console.log('Booking cab:', cab);
-  };
+  const [selectedCab, setSelectedCab] = useState<any>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+   const handleBookNow = (cab: any) => {
+     setSelectedCab(cab);
+     setIsBookingModalOpen(true);
+   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -79,15 +80,7 @@ export default function CabsListingPage() {
           </div>
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white text-sm animate-bounce max-md:hidden">
-          <div className="relative w-6 h-10 border-2 border-white rounded-xl">
-            <div 
-              className="absolute top-2 left-1/2 -translate-x-1/2 w-1 h-2 bg-white rounded-sm animate-[scroll_2s_ease-in-out_infinite]"
-            />
-          </div>
-          <span>Find Your Stay</span>
-        </div>
+
       </section>
 
       {/* Cabs Grid */}
@@ -102,7 +95,7 @@ export default function CabsListingPage() {
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={cab.image}
-                  alt={cab.name}
+                  alt={cab.cab_name}
                   className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                 />
                 <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full shadow-md">
@@ -113,7 +106,7 @@ export default function CabsListingPage() {
               {/* Content */}
               <div className="p-6">
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{cab.name}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{cab.cab_name}</h3>
                   <p className="text-sm text-gray-500">{cab.company}</p>
                 </div>
 
@@ -174,18 +167,30 @@ export default function CabsListingPage() {
             Plan your perfect Sikkim journey with our expert guides and local insights
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
+            <Link to={'/destinations'}>
+             <button 
               className="group px-10 py-4 bg-white text-purple-600 rounded-xl font-semibold text-lg hover:bg-gray-50 hover:-translate-y-1 transition-all duration-200 shadow-xl inline-flex items-center justify-center"
             >
               <span>Plan Your Trip</span>
               <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
             </button>
-            <button className="px-10 py-4 bg-transparent text-white border-2 border-white rounded-xl font-semibold text-lg hover:bg-white/10 hover:-translate-y-1 transition-all duration-200 backdrop-blur-sm">
+            </Link>
+            <Link to={'/contact'}>
+              <button className="px-10 py-4 bg-transparent text-white border-2 border-white rounded-xl font-semibold text-lg hover:bg-white/10 hover:-translate-y-1 transition-all duration-200 backdrop-blur-sm">
               Contact Us
             </button>
+            </Link>
           </div>
         </div>
       </section>
+      {selectedCab && (
+     <CabBookingModal
+       isOpen={isBookingModalOpen}
+       onClose={() => setIsBookingModalOpen(false)}
+       cabName={selectedCab.cab_name}
+       pricePerDay={selectedCab.pricePerDay}
+     />
+   )}
     </div>
   );
 }

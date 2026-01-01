@@ -79,15 +79,7 @@ const ActivitiesPage = () => {
           </div>
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white text-sm animate-bounce max-md:hidden">
-          <div className="relative w-6 h-10 border-2 border-white rounded-xl">
-            <div 
-              className="absolute top-2 left-1/2 -translate-x-1/2 w-1 h-2 bg-white rounded-sm animate-[scroll_2s_ease-in-out_infinite]"
-            />
-          </div>
-          <span>Scroll to Explore</span>
-        </div>
+       
       </section>
 
       {/* Filter Section */}
@@ -244,15 +236,19 @@ const ActivitiesPage = () => {
             Book your activities now and create memories that will last a lifetime
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
+            <Link to={'/contact'}>
+             <button 
               className="group px-10 py-4 bg-white text-purple-600 rounded-xl font-semibold text-lg hover:bg-gray-50 hover:-translate-y-1 transition-all duration-200 shadow-xl inline-flex items-center justify-center"
             >
               <span>Book Activities</span>
               <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
             </button>
-            <button className="px-10 py-4 bg-transparent text-white border-2 border-white rounded-xl font-semibold text-lg hover:bg-white/10 hover:-translate-y-1 transition-all duration-200 backdrop-blur-sm">
+            </Link>
+            <Link to={'/destinations'}>
+             <button className="px-10 py-4 bg-transparent text-white border-2 border-white rounded-xl font-semibold text-lg hover:bg-white/10 hover:-translate-y-1 transition-all duration-200 backdrop-blur-sm">
               Custom Package
             </button>
+            </Link>
           </div>
         </div>
       </section>

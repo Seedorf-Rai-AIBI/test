@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import { toast } from "react-toastify";
 
 interface HotelBookingModalProps {
@@ -10,6 +11,8 @@ interface HotelBookingModalProps {
     roomTypes?: string[];
   };
 }
+
+const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
 type BookingPayload = {
   hotel_name: string;
@@ -25,6 +28,7 @@ type BookingPayload = {
   totalCost: string;
   specialRequests?: string;
   status: string;
+  recaptchaToken: string;
 };
 
 export default function HotelBookingModal({
@@ -34,7 +38,7 @@ export default function HotelBookingModal({
 }: HotelBookingModalProps) {
   const modalRef = useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -112,6 +116,8 @@ export default function HotelBookingModal({
 
     setIsSubmitting(true);
 
+    const token = await recaptchaRef.current?.getValue();
+
     const bookingPayload: BookingPayload = {
       hotel_name: hotelData.name,
       checkInDate: new Date(formData.checkInDate).toISOString(),
@@ -126,6 +132,7 @@ export default function HotelBookingModal({
       totalCost: calculateTotalCost(),
       specialRequests: formData.specialRequests,
       status: "PENDING",
+      recaptchaToken: token || "",
     };
 
     try {
@@ -464,6 +471,19 @@ export default function HotelBookingModal({
                 </span>
               </div>
             </div>
+
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={siteKey}
+              onLoad={() => {
+                console.log("✅ reCAPTCHA loaded successfully");
+                // setRecaptchaLoaded(true);
+              }}
+              onError={(error) => {
+                console.error("❌ reCAPTCHA load error:", error);
+                toast.error("Failed to load reCAPTCHA");
+              }}
+            />
 
             <div className="flex gap-3 pt-2">
               <button

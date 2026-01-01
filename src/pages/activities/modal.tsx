@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import { toast } from "react-toastify";
 
 interface ActivityBookingModalProps {
@@ -6,6 +7,8 @@ interface ActivityBookingModalProps {
   onClose: () => void;
   activityName: string;
 }
+
+const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
 type BookingPayload = {
   activity_name: string;
@@ -17,6 +20,7 @@ type BookingPayload = {
   secondaryPhone: string;
   status: string;
   moreDetails: string;
+  recaptchaToken: string;
 };
 
 export default function ActivityBookingModal({
@@ -24,6 +28,7 @@ export default function ActivityBookingModal({
   onClose,
   activityName,
 }: ActivityBookingModalProps) {
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -66,6 +71,8 @@ export default function ActivityBookingModal({
 
     setIsSubmitting(true);
 
+    const token = await recaptchaRef.current?.getValue();
+
     const bookingPayload: BookingPayload = {
       activity_name: activityName,
       startDate: new Date(formData.startDate).toISOString(),
@@ -76,6 +83,7 @@ export default function ActivityBookingModal({
       secondaryPhone: formData.secondaryPhone,
       status: "PENDING",
       moreDetails: formData.moreDetails,
+      recaptchaToken: token || "",
     };
 
     try {
@@ -317,6 +325,19 @@ export default function ActivityBookingModal({
                 </span>
               </div>
             </div>
+
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={siteKey}
+              onLoad={() => {
+                console.log("✅ reCAPTCHA loaded successfully");
+                // setRecaptchaLoaded(true);
+              }}
+              onError={(error) => {
+                console.error("❌ reCAPTCHA load error:", error);
+                toast.error("Failed to load reCAPTCHA");
+              }}
+            />
 
             <div className="flex gap-3 pt-2">
               <button

@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import packages from '../../data/package';
-import { toast } from 'react-toastify';
-import { useMutation } from '@tanstack/react-query';
-import { X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import packages from "../../data/package";
+import { toast } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
+import ReCAPTCHA from "react-google-recaptcha";
 
 type Tour = any;
 
+const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
 interface PackageBookingModalProps {
   isOpen: boolean;
@@ -28,10 +29,15 @@ type BookingPayload = {
   base_price: number;
   total_price: number;
 };
-function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingModalProps) {
+function PackageBookingModal({
+  isOpen,
+  onClose,
+  packageData,
+}: PackageBookingModalProps) {
   const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement | null>(null);
-
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  // const [recaptchatoken, setrecaptchatoken] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -44,44 +50,48 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
     special_requests: "",
   });
 
-  const bookingMutation = useMutation<any, Error, BookingPayload>({
-    mutationFn: async (bookingData: BookingPayload) => {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL || "http://localhost:4000"}/api/package-bookings`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(bookingData),
-        }
-      );
+  // const bookingMutation = useMutation<any, Error, BookingPayload>({
+  //   mutationFn: async (bookingData: BookingPayload) => {
+  //     const response = await fetch(
+  //       `${
+  //         import.meta.env.VITE_BASE_URL || "http://localhost:4000"
+  //       }/api/package-bookings`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(bookingData),
+  //       }
+  //     );
 
-      if (!response.ok) {
-        throw new Error("Booking failed");
-      }
+  //     if (!response.ok) {
+  //       throw new Error("Booking failed");
+  //     }
 
-      return response.json();
-    },
-    onSuccess: () => {
-      toast.success("Booking confirmed successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      setTimeout(() => {
-        onClose();
-        navigate("/");
-      }, 1500);
-    },
-    onError: (error: any) => {
-      toast.error(`Booking failed: ${error.message}`, {
-        position: "top-right",
-        autoClose: 4000,
-      });
-    },
-  });
+  //     return response.json();
+  //   },
+  //   onSuccess: () => {
+  //     toast.success("Booking confirmed successfully!", {
+  //       position: "top-right",
+  //       autoClose: 3000,
+  //     });
+  //     setTimeout(() => {
+  //       onClose();
+  //       navigate("/");
+  //     }, 1500);
+  //   },
+  //   onError: (error: any) => {
+  //     toast.error(`Booking failed: ${error.message}`, {
+  //       position: "top-right",
+  //       autoClose: 4000,
+  //     });
+  //   },
+  // });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -89,10 +99,19 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.primary_phone || !formData.nationality || !formData.pickup_location || !formData.datetime) {
+    console.log("=== Form submission started ===");
+
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.primary_phone ||
+      !formData.nationality ||
+      !formData.pickup_location ||
+      !formData.datetime
+    ) {
       toast.error("Please fill all required fields", {
         position: "top-right",
         autoClose: 3000,
@@ -100,16 +119,123 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
       return;
     }
 
-    const bookingPayload = {
-      ...formData,
-      number_of_people: Number(formData.number_of_people),
-      package_name: packageData?.name || packageData?.title || "Tour Package",
-      base_price: packageData?.price || 0,
-      total_price: (packageData?.price || 0) * Number(formData.number_of_people),
-    };
+    
 
-    bookingMutation.mutate(bookingPayload);
+    try {
+      // Execute reCAPTCHA
+      const token = await recaptchaRef.current?.getValue();
+
+      console.log("reCAPTCHA token received:", token);
+
+      if (!token) {
+        console.error("Token is null or undefined");
+        toast.error("Captcha verification failed. Please try again.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        recaptchaRef.current?.reset();
+        return;
+      }
+
+      console.log("Building booking payload...");
+
+      const bookingPayload = {
+        ...formData,
+        number_of_people: Number(formData.number_of_people),
+        package_name: packageData?.name || packageData?.title || "Tour Package",
+        base_price: packageData?.price || 0,
+        total_price:
+          (packageData?.price || 0) * Number(formData.number_of_people),
+        recaptchaToken: token,
+      };
+
+      console.log("Booking payload:", bookingPayload);
+      console.log("Calling mutation...");
+
+      // Call the mutation
+      bookingMutation.mutate(bookingPayload);
+
+      // Reset reCAPTCHA after submission
+      recaptchaRef.current?.reset();
+    } catch (error) {
+      console.error("=== Error in handleSubmit ===");
+      console.error("Error details:", error);
+      console.error(
+        "Error message:",
+        error instanceof Error ? error.message : "Unknown error"
+      );
+      console.error(
+        "Error stack:",
+        error instanceof Error ? error.stack : "No stack trace"
+      );
+
+      toast.error("An error occurred. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      recaptchaRef.current?.reset();
+    }
   };
+
+  // Also add logging to your mutation:
+  const bookingMutation = useMutation<any, Error, BookingPayload>({
+    mutationFn: async (bookingData: BookingPayload) => {
+      console.log("=== Mutation function called ===");
+      console.log("Sending data:", bookingData);
+
+      const url = `${
+        import.meta.env.VITE_BASE_URL || "http://localhost:4000"
+      }/api/package-bookings`;
+      console.log("POST URL:", url);
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(`Booking failed: ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log("Success response:", result);
+      return result;
+    },
+    onSuccess: (data) => {
+      console.log("=== onSuccess called ===");
+      console.log("Success data:", data);
+
+      toast.success("Booking confirmed successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setTimeout(() => {
+        console.log("Closing modal and navigating...");
+        onClose();
+        navigate("/");
+      }, 1500);
+    },
+    onError: (error: any) => {
+      console.error("=== onError called ===");
+      console.error("Error object:", error);
+      console.error("Error message:", error.message);
+
+      toast.error(`Booking failed: ${error.message}`, {
+        position: "top-right",
+        autoClose: 4000,
+      });
+    },
+  });
 
   // Close on ESC / click outside
   useEffect(() => {
@@ -147,7 +273,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
           className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl p-5"
         >
           <header>
-            <h2 id="booking-title" className="text-xl font-bold text-slate-900 leading-tight">
+            <h2
+              id="booking-title"
+              className="text-xl font-bold text-slate-900 leading-tight"
+            >
               Book Your Package
             </h2>
             <p className="mt-1.5 text-xs text-slate-500">
@@ -158,7 +287,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
           <form onSubmit={handleSubmit} className="mt-4 space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label htmlFor="name" className="block text-xs font-semibold mb-2 text-slate-900">
+                <label
+                  htmlFor="name"
+                  className="block text-xs font-semibold mb-2 text-slate-900"
+                >
                   Full Name *
                 </label>
                 <input
@@ -174,7 +306,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-xs font-semibold mb-2 text-slate-900">
+                <label
+                  htmlFor="email"
+                  className="block text-xs font-semibold mb-2 text-slate-900"
+                >
                   Email *
                 </label>
                 <input
@@ -190,7 +325,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
               </div>
 
               <div>
-                <label htmlFor="primary_phone" className="block text-xs font-semibold mb-2 text-slate-900">
+                <label
+                  htmlFor="primary_phone"
+                  className="block text-xs font-semibold mb-2 text-slate-900"
+                >
                   Primary Phone *
                 </label>
                 <input
@@ -206,7 +344,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
               </div>
 
               <div>
-                <label htmlFor="secondary_phone" className="block text-xs font-semibold mb-2 text-slate-900">
+                <label
+                  htmlFor="secondary_phone"
+                  className="block text-xs font-semibold mb-2 text-slate-900"
+                >
                   Secondary Phone
                 </label>
                 <input
@@ -221,7 +362,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
               </div>
 
               <div>
-                <label htmlFor="nationality" className="block text-xs font-semibold mb-2 text-slate-900">
+                <label
+                  htmlFor="nationality"
+                  className="block text-xs font-semibold mb-2 text-slate-900"
+                >
                   Nationality *
                 </label>
                 <input
@@ -237,7 +381,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
               </div>
 
               <div>
-                <label htmlFor="number_of_people" className="block text-xs font-semibold mb-2 text-slate-900">
+                <label
+                  htmlFor="number_of_people"
+                  className="block text-xs font-semibold mb-2 text-slate-900"
+                >
                   Number of People *
                 </label>
                 <input
@@ -253,7 +400,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
               </div>
 
               <div>
-                <label htmlFor="pickup_location" className="block text-xs font-semibold mb-2 text-slate-900">
+                <label
+                  htmlFor="pickup_location"
+                  className="block text-xs font-semibold mb-2 text-slate-900"
+                >
                   Pickup Location *
                 </label>
                 <input
@@ -269,7 +419,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
               </div>
 
               <div>
-                <label htmlFor="datetime" className="block text-xs font-semibold mb-2 text-slate-900">
+                <label
+                  htmlFor="datetime"
+                  className="block text-xs font-semibold mb-2 text-slate-900"
+                >
                   Pickup Date & Time *
                 </label>
                 <input
@@ -285,7 +438,10 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
             </div>
 
             <div>
-              <label htmlFor="special_requests" className="block text-xs font-semibold mb-2 text-slate-900">
+              <label
+                htmlFor="special_requests"
+                className="block text-xs font-semibold mb-2 text-slate-900"
+              >
                 Special Requests
               </label>
               <textarea
@@ -308,19 +464,42 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-600">Base Price:</span>
-                <span className="text-sm font-semibold text-slate-900">₹{packageData?.price || 0}</span>
+                <span className="text-sm font-semibold text-slate-900">
+                  ₹{packageData?.price || 0}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-600">Number of People:</span>
-                <span className="text-sm font-semibold text-slate-900">{formData.number_of_people}</span>
+                <span className="text-xs text-slate-600">
+                  Number of People:
+                </span>
+                <span className="text-sm font-semibold text-slate-900">
+                  {formData.number_of_people}
+                </span>
               </div>
               <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
-                <span className="text-sm font-bold text-slate-900">Total Price:</span>
+                <span className="text-sm font-bold text-slate-900">
+                  Total Price:
+                </span>
                 <span className="text-xl font-bold text-blue-600">
-                  ₹{(packageData?.price || 0) * Number(formData.number_of_people)}
+                  ₹
+                  {(packageData?.price || 0) *
+                    Number(formData.number_of_people)}
                 </span>
               </div>
             </div>
+
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={siteKey}
+              onLoad={() => {
+                console.log("✅ reCAPTCHA loaded successfully");
+                // setRecaptchaLoaded(true);
+              }}
+              onError={(error) => {
+                console.error("❌ reCAPTCHA load error:", error);
+                toast.error("Failed to load reCAPTCHA");
+              }}
+            />
 
             <div className="flex gap-3 pt-2">
               <button
@@ -344,21 +523,23 @@ function PackageBookingModal({ isOpen, onClose, packageData }: PackageBookingMod
         </div>
       </div>
     </>
-  )
+  );
 }
 
 const TourDetailPage: React.FC = () => {
   const params = useParams();
   const navigate = useNavigate();
   const tourId = params.id ? Number(params.id) : null;
-  
+
   const [tour, setTour] = useState<Tour | null>(null);
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!tourId) return;
-    const found = (packages as any[]).find((t) => Number(t.id) === Number(tourId));
+    const found = (packages as any[]).find(
+      (t) => Number(t.id) === Number(tourId)
+    );
     setTour(found ?? null);
   }, [tourId]);
 
@@ -367,9 +548,11 @@ const TourDetailPage: React.FC = () => {
   };
 
   const handleWhatsAppContact = () => {
-    const phoneNumber = '1234567890';
-    const message = encodeURIComponent(`Hi, I'm interested in the ${tour?.title ?? tour?.name ?? ''}`);
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    const phoneNumber = "1234567890";
+    const message = encodeURIComponent(
+      `Hi, I'm interested in the ${tour?.title ?? tour?.name ?? ""}`
+    );
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
   };
 
   const toggleFaq = (id: string) => {
@@ -390,8 +573,8 @@ const TourDetailPage: React.FC = () => {
     );
   }
 
-  const title = tour.title ?? tour.name ?? 'Untitled Tour';
-  const heroImage = tour.heroImage ?? tour.image ?? '';
+  const title = tour.title ?? tour.name ?? "Untitled Tour";
+  const heroImage = tour.heroImage ?? tour.image ?? "";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -400,20 +583,28 @@ const TourDetailPage: React.FC = () => {
         className="relative h-[600px] bg-cover bg-center flex items-center justify-center overflow-hidden opacity-[0.95]"
         style={{ backgroundImage: `url('${heroImage}')` }}
       >
-        <div 
+        <div
           className="absolute inset-0 z-10"
-          style={{ 
-            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.7) 100%)'
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.7) 100%)",
           }}
         />
         <div
           className="absolute inset-0 z-10"
-          style={{ background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%)' }}
+          style={{
+            background:
+              "radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%)",
+          }}
         />
 
         <div className="relative z-20 text-center text-white max-w-4xl px-8">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 drop-shadow-lg">{title}</h1>
-          <p className="text-xl md:text-2xl mb-8 drop-shadow-md opacity-95">{tour.description}</p>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 drop-shadow-lg">
+            {title}
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 drop-shadow-md opacity-95">
+            {tour.description}
+          </p>
         </div>
       </div>
 
@@ -422,21 +613,35 @@ const TourDetailPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {tour.price > 0 && (
             <div className="bg-white rounded-xl shadow-xl p-6 text-center hover:-translate-y-2 transition-transform duration-300">
-              <div className="text-sm text-slate-500 font-medium mb-2 uppercase tracking-wide">From</div>
-              <div className="text-3xl font-bold text-slate-800">₹ {tour.price}</div>
+              <div className="text-sm text-slate-500 font-medium mb-2 uppercase tracking-wide">
+                From
+              </div>
+              <div className="text-3xl font-bold text-slate-800">
+                ₹ {tour.price}
+              </div>
             </div>
           )}
           <div className="bg-white rounded-xl shadow-xl p-6 text-center hover:-translate-y-2 transition-transform duration-300">
-            <div className="text-sm text-slate-500 font-medium mb-2 uppercase tracking-wide">Duration</div>
-            <div className="text-3xl font-bold text-slate-800">{tour.duration}</div>
+            <div className="text-sm text-slate-500 font-medium mb-2 uppercase tracking-wide">
+              Duration
+            </div>
+            <div className="text-3xl font-bold text-slate-800">
+              {tour.duration}
+            </div>
           </div>
           <div className="bg-white rounded-xl shadow-xl p-6 text-center hover:-translate-y-2 transition-transform duration-300">
-            <div className="text-sm text-slate-500 font-medium mb-2 uppercase tracking-wide">Tour Type</div>
+            <div className="text-sm text-slate-500 font-medium mb-2 uppercase tracking-wide">
+              Tour Type
+            </div>
             <div className="text-3xl font-bold text-slate-800">{tour.type}</div>
           </div>
           <div className="bg-white rounded-xl shadow-xl p-6 text-center hover:-translate-y-2 transition-transform duration-300">
-            <div className="text-sm text-slate-500 font-medium mb-2 uppercase tracking-wide">Rating</div>
-            <div className="text-3xl font-bold text-slate-800">{tour.rating}/5 ({tour.reviewCount})</div>
+            <div className="text-sm text-slate-500 font-medium mb-2 uppercase tracking-wide">
+              Rating
+            </div>
+            <div className="text-3xl font-bold text-slate-800">
+              {tour.rating}/5 ({tour.reviewCount})
+            </div>
           </div>
         </div>
       </div>
@@ -448,19 +653,27 @@ const TourDetailPage: React.FC = () => {
           <div className="lg:col-span-2 space-y-8">
             {/* About Section */}
             <div className="bg-gradient-to-br from-slate-50 to-indigo-50 rounded-2xl p-8 md:p-12">
-              <h2 className="text-4xl font-bold text-slate-800 mb-6">About This Tour</h2>
-              <p className="text-lg leading-relaxed text-slate-600">{tour.description}</p>
+              <h2 className="text-4xl font-bold text-slate-800 mb-6">
+                About This Tour
+              </h2>
+              <p className="text-lg leading-relaxed text-slate-600">
+                {tour.description}
+              </p>
             </div>
 
             {/* Inclusions, Exclusions, Requirements */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {tour.inclusions && (
                 <div className="bg-white rounded-xl shadow-lg p-8">
-                  <h3 className="text-2xl font-bold text-slate-800 mb-6 pb-4 border-b-2 border-slate-200">What's Included</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-6 pb-4 border-b-2 border-slate-200">
+                    What's Included
+                  </h3>
                   <ul className="space-y-3">
                     {tour.inclusions.map((item: any, idx: number) => (
                       <li key={idx} className="flex items-start">
-                        <span className="text-green-500 font-bold mr-3 text-xl">✓</span>
+                        <span className="text-green-500 font-bold mr-3 text-xl">
+                          ✓
+                        </span>
                         <span className="text-slate-700">{item}</span>
                       </li>
                     ))}
@@ -470,11 +683,15 @@ const TourDetailPage: React.FC = () => {
 
               {tour.exclusions && (
                 <div className="bg-white rounded-xl shadow-lg p-8">
-                  <h3 className="text-2xl font-bold text-slate-800 mb-6 pb-4 border-b-2 border-slate-200">What's Not Included</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-6 pb-4 border-b-2 border-slate-200">
+                    What's Not Included
+                  </h3>
                   <ul className="space-y-3">
                     {tour.exclusions.map((item: any, idx: number) => (
                       <li key={idx} className="flex items-start">
-                        <span className="text-red-500 font-bold mr-3 text-xl">✗</span>
+                        <span className="text-red-500 font-bold mr-3 text-xl">
+                          ✗
+                        </span>
                         <span className="text-slate-700">{item}</span>
                       </li>
                     ))}
@@ -484,11 +701,15 @@ const TourDetailPage: React.FC = () => {
 
               {tour.requirements && (
                 <div className="bg-white rounded-xl shadow-lg p-8">
-                  <h3 className="text-2xl font-bold text-slate-800 mb-6 pb-4 border-b-2 border-slate-200">What to Bring</h3>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-6 pb-4 border-b-2 border-slate-200">
+                    What to Bring
+                  </h3>
                   <ul className="space-y-3">
                     {tour.requirements.map((item: any, idx: number) => (
                       <li key={idx} className="flex items-start">
-                        <span className="text-blue-500 font-bold mr-3 text-xl">→</span>
+                        <span className="text-blue-500 font-bold mr-3 text-xl">
+                          →
+                        </span>
                         <span className="text-slate-700">{item}</span>
                       </li>
                     ))}
@@ -500,21 +721,32 @@ const TourDetailPage: React.FC = () => {
             {/* Itinerary */}
             {tour.itinerary && tour.itinerary.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg p-8">
-                <h2 className="text-4xl font-bold text-slate-800 mb-8">Tour Plan</h2>
+                <h2 className="text-4xl font-bold text-slate-800 mb-8">
+                  Tour Plan
+                </h2>
                 <div className="space-y-8">
                   {tour.itinerary.map((item: any) => (
-                    <div key={item.day} className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 shadow-lg">
+                    <div
+                      key={item.day}
+                      className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 shadow-lg"
+                    >
                       <div className="flex items-center gap-4 mb-6">
-                        <div className="bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-xl font-bold">Day {item.day}</div>
-                        <h3 className="text-2xl font-bold text-slate-800">{item.title}</h3>
+                        <div className="bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-xl font-bold">
+                          Day {item.day}
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-800">
+                          {item.title}
+                        </h3>
                       </div>
                       <ul className="space-y-3 ml-20">
-                        {item.activities.map((activity: string, idx: number) => (
-                          <li key={idx} className="flex items-start">
-                            <span className="text-blue-600 mr-3 mt-1">●</span>
-                            <span className="text-slate-700">{activity}</span>
-                          </li>
-                        ))}
+                        {item.activities.map(
+                          (activity: string, idx: number) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="text-blue-600 mr-3 mt-1">●</span>
+                              <span className="text-slate-700">{activity}</span>
+                            </li>
+                          )
+                        )}
                       </ul>
                     </div>
                   ))}
@@ -525,32 +757,54 @@ const TourDetailPage: React.FC = () => {
             {/* Amenities */}
             {tour.amenities && tour.amenities.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg p-8">
-                <h2 className="text-4xl font-bold text-slate-800 mb-8">Amenities</h2>
+                <h2 className="text-4xl font-bold text-slate-800 mb-8">
+                  Amenities
+                </h2>
                 <div className="grid grid-cols-1 gap-8">
                   {tour.amenities.filter((a: any) => a.included).length > 0 && (
                     <div>
-                      <h3 className="text-2xl font-bold text-green-600 mb-6 flex items-center"><span className="text-3xl mr-2">✓</span> Included</h3>
+                      <h3 className="text-2xl font-bold text-green-600 mb-6 flex items-center">
+                        <span className="text-3xl mr-2">✓</span> Included
+                      </h3>
                       <ul className="space-y-4">
-                        {tour.amenities.filter((a: any) => a.included).map((amenity: any) => (
-                          <li key={amenity.id} className="flex border-[1px] rounded-md p-2 border-gray-300 items-center">
-                            <span className="text-green-500 text-2xl mr-3">✓</span>
-                            <span className="text-lg text-slate-700">{amenity.name}</span>
-                          </li>
-                        ))}
+                        {tour.amenities
+                          .filter((a: any) => a.included)
+                          .map((amenity: any) => (
+                            <li
+                              key={amenity.id}
+                              className="flex border-[1px] rounded-md p-2 border-gray-300 items-center"
+                            >
+                              <span className="text-green-500 text-2xl mr-3">
+                                ✓
+                              </span>
+                              <span className="text-lg text-slate-700">
+                                {amenity.name}
+                              </span>
+                            </li>
+                          ))}
                       </ul>
                     </div>
                   )}
 
-                  {tour.amenities.filter((a: any) => !a.included).length > 0 && (
+                  {tour.amenities.filter((a: any) => !a.included).length >
+                    0 && (
                     <div>
-                      <h3 className="text-2xl font-bold text-red-600 mb-6 flex items-center"><span className="text-3xl mr-2">✗</span> Not Included</h3>
+                      <h3 className="text-2xl font-bold text-red-600 mb-6 flex items-center">
+                        <span className="text-3xl mr-2">✗</span> Not Included
+                      </h3>
                       <ul className="space-y-4">
-                        {tour.amenities.filter((a: any) => !a.included).map((amenity: any) => (
-                          <li key={amenity.id} className="flex items-center">
-                            <span className="text-red-500 text-2xl mr-3">✗</span>
-                            <span className="text-lg text-slate-700">{amenity.name}</span>
-                          </li>
-                        ))}
+                        {tour.amenities
+                          .filter((a: any) => !a.included)
+                          .map((amenity: any) => (
+                            <li key={amenity.id} className="flex items-center">
+                              <span className="text-red-500 text-2xl mr-3">
+                                ✗
+                              </span>
+                              <span className="text-lg text-slate-700">
+                                {amenity.name}
+                              </span>
+                            </li>
+                          ))}
                       </ul>
                     </div>
                   )}
@@ -563,8 +817,12 @@ const TourDetailPage: React.FC = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl p-8 sticky top-4 border-2 border-blue-100">
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-slate-800 mb-2">Book This Tour</h3>
-                <p className="text-slate-600">Secure your spot for an unforgettable adventure</p>
+                <h3 className="text-2xl font-bold text-slate-800 mb-2">
+                  Book This Tour
+                </h3>
+                <p className="text-slate-600">
+                  Secure your spot for an unforgettable adventure
+                </p>
               </div>
 
               {/* Booking Details */}
@@ -572,12 +830,16 @@ const TourDetailPage: React.FC = () => {
                 {tour.price > 0 && (
                   <div className="flex justify-between items-center py-3 border-b border-slate-200">
                     <span className="text-slate-600 font-medium">Price</span>
-                    <span className="text-slate-800 font-bold text-xl">₹{tour.price}</span>
+                    <span className="text-slate-800 font-bold text-xl">
+                      ₹{tour.price}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between items-center py-3 border-b border-slate-200">
                   <span className="text-slate-600 font-medium">Duration</span>
-                  <span className="text-slate-800 font-bold">{tour.duration}</span>
+                  <span className="text-slate-800 font-bold">
+                    {tour.duration}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-slate-200">
                   <span className="text-slate-600 font-medium">Tour Type</span>
@@ -585,7 +847,9 @@ const TourDetailPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center py-3">
                   <span className="text-slate-600 font-medium">Rating</span>
-                  <span className="text-slate-800 font-bold">{tour.rating}/5 ⭐</span>
+                  <span className="text-slate-800 font-bold">
+                    {tour.rating}/5 ⭐
+                  </span>
                 </div>
               </div>
 
@@ -599,7 +863,7 @@ const TourDetailPage: React.FC = () => {
                 </button>
                 <button
                   onClick={handleWhatsAppContact}
-                  className="w-full bg-green-500 text-white py-4 rounded-lg text-lg font-semibold hover:bg-green-600 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="w-full bg-green-600 text-white py-4 rounded-lg text-lg font-semibold hover:bg-green-600 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   <span>💬</span>
                   WhatsApp Inquiry
@@ -610,7 +874,8 @@ const TourDetailPage: React.FC = () => {
               <div className="mt-8 pt-8 border-t border-slate-200">
                 <h4 className="font-bold text-slate-800 mb-3">Need Help?</h4>
                 <p className="text-sm text-slate-600 mb-3">
-                  Contact our team for personalized assistance with your booking or any questions.
+                  Contact our team for personalized assistance with your booking
+                  or any questions.
                 </p>
                 <p className="text-sm text-slate-600">
                   📞 <span className="font-semibold">+91 1234567890</span>
@@ -628,20 +893,31 @@ const TourDetailPage: React.FC = () => {
       {tour.faqs && tour.faqs.length > 0 && (
         <section className="py-16 bg-slate-100">
           <div className="max-w-4xl mx-auto px-4">
-            <h2 className="text-4xl font-bold text-center text-slate-800 mb-12">Frequently Asked Questions</h2>
+            <h2 className="text-4xl font-bold text-center text-slate-800 mb-12">
+              Frequently Asked Questions
+            </h2>
             <div className="space-y-4">
               {tour.faqs.map((faq: any) => (
-                <div key={faq.id} className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div
+                  key={faq.id}
+                  className="bg-white rounded-xl shadow-md overflow-hidden"
+                >
                   <button
                     onClick={() => toggleFaq(faq.id)}
                     className="w-full px-8 py-6 text-left flex justify-between items-center hover:bg-slate-50 transition-colors"
                   >
-                    <span className="text-lg font-semibold text-slate-800 pr-4">{faq.question}</span>
-                    <span className="text-3xl text-blue-600 font-bold flex-shrink-0">{expandedFaq === faq.id ? '−' : '+'}</span>
+                    <span className="text-lg font-semibold text-slate-800 pr-4">
+                      {faq.question}
+                    </span>
+                    <span className="text-3xl text-blue-600 font-bold flex-shrink-0">
+                      {expandedFaq === faq.id ? "−" : "+"}
+                    </span>
                   </button>
                   {expandedFaq === faq.id && (
                     <div className="px-8 pb-6">
-                      <p className="text-slate-600 leading-relaxed">{faq.answer}</p>
+                      <p className="text-slate-600 leading-relaxed">
+                        {faq.answer}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -654,15 +930,29 @@ const TourDetailPage: React.FC = () => {
       {/* CTA */}
       <section className="py-20 bg-gradient-to-br from-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Ready to Book Your Adventure?</h2>
-          <p className="text-xl text-white/90 mb-10">Contact us today to reserve your spot on this amazing tour</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Ready to Book Your Adventure?
+          </h2>
+          <p className="text-xl text-white/90 mb-10">
+            Contact us today to reserve your spot on this amazing tour
+          </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={handleBooking} className="bg-white text-blue-600 px-10 py-4 rounded-lg text-lg font-semibold hover:bg-slate-100 hover:-translate-y-1 transition-all duration-300 shadow-xl">Book Now</button>
-            <button onClick={handleWhatsAppContact} className="bg-green-500 text-white px-10 py-4 rounded-lg text-lg font-semibold hover:bg-green-600 hover:-translate-y-1 transition-all duration-300 shadow-xl">Contact via WhatsApp</button>
+            <button
+              onClick={handleBooking}
+              className="bg-white text-blue-600 px-10 py-4 rounded-lg text-lg font-semibold hover:bg-slate-100 hover:-translate-y-1 transition-all duration-300 shadow-xl"
+            >
+              Book Now
+            </button>
+            <button
+              onClick={handleWhatsAppContact}
+              className="bg-green-600 text-white px-10 py-4 rounded-lg text-lg font-semibold hover:bg-green-700 hover:-translate-y-1 transition-all duration-300 shadow-xl"
+            >
+              Contact via WhatsApp
+            </button>
           </div>
         </div>
       </section>
-      
+
       <PackageBookingModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

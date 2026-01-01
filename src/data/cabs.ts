@@ -1,7 +1,7 @@
 const cabsData = [
   {
     id: "1",
-    name: "Sedan Classic",
+    cab_name: "Sedan Classic",
     company: "Yellow Cabs",
     capacity: 4,
     pricePerDay: 50,
@@ -11,7 +11,7 @@ const cabsData = [
   },
   {
     id: "2",
-    name: "SUV Premium",
+    cab_name: "SUV Premium",
     company: "Elite Rides",
     capacity: 6,
     pricePerDay: 75,
@@ -21,7 +21,7 @@ const cabsData = [
   },
   {
     id: "3",
-    name: "Eco Compact",
+    cab_name: "Eco Compact",
     company: "Green Motors",
     capacity: 4,
     pricePerDay: 35,
@@ -31,7 +31,7 @@ const cabsData = [
   },
   {
     id: "4",
-    name: "Van Spacious",
+    cab_name: "Van Spacious",
     company: "Family Transport",
     capacity: 8,
     pricePerDay: 90,
@@ -41,7 +41,7 @@ const cabsData = [
   },
   {
     id: "5",
-    name: "Luxury Executive",
+    cab_name: "Luxury Executive",
     company: "Premium Fleet",
     capacity: 4,
     pricePerDay: 120,
@@ -51,7 +51,7 @@ const cabsData = [
   },
   {
     id: "6",
-    name: "Standard Sedan",
+    cab_name: "Standard Sedan",
     company: "City Cabs",
     capacity: 5,
     pricePerDay: 55,
@@ -61,7 +61,7 @@ const cabsData = [
   },
   {
     id: "7",
-    name: "Hatchback Budget",
+    cab_name: "Hatchback Budget",
     company: "Economy Rides",
     capacity: 4,
     pricePerDay: 30,
@@ -71,7 +71,7 @@ const cabsData = [
   },
   {
     id: "8",
-    name: "Business Class",
+    cab_name: "Business Class",
     company: "Corporate Cabs",
     capacity: 4,
     pricePerDay: 95,
@@ -81,7 +81,7 @@ const cabsData = [
   },
   {
     id: "9",
-    name: "Luxury SUV",
+    cab_name: "Luxury SUV",
     company: "Premium Fleet",
     capacity: 7,
     pricePerDay: 140,
@@ -91,7 +91,7 @@ const cabsData = [
   },
   {
     id: "10",
-    name: "Mini Cooper",
+    cab_name: "Mini Cooper",
     company: "Urban Wheels",
     capacity: 4,
     pricePerDay: 65,

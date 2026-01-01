@@ -1,7 +1,7 @@
 const bikesData = [
   {
     id: '1',
-    name: 'Cruiser Classic',
+    bike_name: 'Cruiser Classic',
     company: 'Ride Freedom',
     capacity: 1,
     pricePerDay: 25,
@@ -11,7 +11,7 @@ const bikesData = [
   },
   {
     id: '2',
-    name: 'Sport Bike 600cc',
+    bike_name: 'Sport Bike 600cc',
     company: 'Speed Demons',
     capacity: 2,
     pricePerDay: 45,
@@ -21,7 +21,7 @@ const bikesData = [
   },
   {
     id: '3',
-    name: 'Adventure Tourer',
+    bike_name: 'Adventure Tourer',
     company: 'Explorer Bikes',
     capacity: 2,
     pricePerDay: 60,
@@ -31,7 +31,7 @@ const bikesData = [
   },
   {
     id: '4',
-    name: 'Street Fighter',
+    bike_name: 'Street Fighter',
     company: 'Urban Riders',
     capacity: 2,
     pricePerDay: 40,
@@ -41,7 +41,7 @@ const bikesData = [
   },
   {
     id: '5',
-    name: 'Retro Classic',
+    bike_name: 'Retro Classic',
     company: 'Vintage Motors',
     capacity: 1,
     pricePerDay: 35,
@@ -51,7 +51,7 @@ const bikesData = [
   },
   {
     id: '6',
-    name: 'Scooter Easy Ride',
+    bike_name: 'Scooter Easy Ride',
     company: 'Urban Scooters',
     capacity: 2,
     pricePerDay: 20,
@@ -61,7 +61,7 @@ const bikesData = [
   },
   {
     id: '7',
-    name: 'Superbike 1000cc',
+    bike_name: 'Superbike 1000cc',
     company: 'Speed Demons',
     capacity: 2,
     pricePerDay: 80,
@@ -71,7 +71,7 @@ const bikesData = [
   },
   {
     id: '8',
-    name: 'Commuter 150cc',
+    bike_name: 'Commuter 150cc',
     company: 'Daily Rides',
     capacity: 2,
     pricePerDay: 18,
@@ -81,7 +81,7 @@ const bikesData = [
   },
   {
     id: '9',
-    name: 'Cafe Racer',
+    bike_name: 'Cafe Racer',
     company: 'Vintage Motors',
     capacity: 1,
     pricePerDay: 50,
@@ -91,7 +91,7 @@ const bikesData = [
   },
   {
     id: '10',
-    name: 'Electric Scooter',
+    bike_name: 'Electric Scooter',
     company: 'Eco Rides',
     capacity: 2,
     pricePerDay: 30,

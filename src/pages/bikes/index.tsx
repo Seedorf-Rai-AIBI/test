@@ -1,20 +1,26 @@
 import { useState } from 'react';
 import { Bike, Users, DollarSign } from 'lucide-react';
 import bikesData from '../../data/bikes';
-
-
+import BikeBookingModal from './modal';
+import { Link } from 'react-router-dom';
 
 export default function BikesListingPage() {
   const [selectedBike, setSelectedBike] = useState<any | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleBookNow = (bike: any) => {
     setSelectedBike(bike);
-    console.log('Booking bike:', bike);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedBike(null);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      {/* Hero Section (copied from cabs style, adapted for bikes) */}
+      {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
         <div className="absolute inset-0 opacity-10">
           <div 
@@ -71,12 +77,7 @@ export default function BikesListingPage() {
           </div>
         </div>
 
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white text-sm animate-bounce max-md:hidden">
-          <div className="relative w-6 h-10 border-2 border-white rounded-xl">
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-1 h-2 bg-white rounded-sm animate-[scroll_2s_ease-in-out_infinite]" />
-          </div>
-          <span>Find Your Ride</span>
-        </div>
+        
       </section>
 
       {/* Bikes Grid */}
@@ -90,7 +91,7 @@ export default function BikesListingPage() {
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={bike.image}
-                  alt={bike.name}
+                  alt={bike.bike_name}
                   className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                 />
                 <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full shadow-md">
@@ -100,7 +101,7 @@ export default function BikesListingPage() {
 
               <div className="p-6">
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{bike.name}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{bike.bike_name}</h3>
                   <p className="text-sm text-gray-500">{bike.company}</p>
                 </div>
 
@@ -135,7 +136,17 @@ export default function BikesListingPage() {
         </div>
       </div>
 
-      {/* Bottom CTA (copied/adapted from cabs) */}
+      {/* Booking Modal */}
+      {selectedBike && (
+        <BikeBookingModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          bikeName={selectedBike.bike_name}
+          pricePerDay={selectedBike.pricePerDay}
+        />
+      )}
+
+      {/* Bottom CTA */}
       <section className="relative py-24 px-4 overflow-hidden" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
         <div className="absolute inset-0 opacity-10">
           <div 
@@ -154,15 +165,19 @@ export default function BikesListingPage() {
             Rent a bike and discover Sikkim's hidden gems at your own pace.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
+            <Link to={'/destinations'}>
+              <button 
               className="group px-10 py-4 bg-white text-purple-600 rounded-xl font-semibold text-lg hover:bg-gray-50 hover:-translate-y-1 transition-all duration-200 shadow-xl inline-flex items-center justify-center"
             >
               <span>Plan Your Ride</span>
               <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
             </button>
-            <button className="px-10 py-4 bg-transparent text-white border-2 border-white rounded-xl font-semibold text-lg hover:bg-white/10 hover:-translate-y-1 transition-all duration-200 backdrop-blur-sm">
+            </Link>
+            <Link to={'/contact'}>
+              <button className="px-10 py-4 bg-transparent text-white border-2 border-white rounded-xl font-semibold text-lg hover:bg-white/10 hover:-translate-y-1 transition-all duration-200 backdrop-blur-sm">
               Contact Us
             </button>
+            </Link>
           </div>
         </div>
       </section>

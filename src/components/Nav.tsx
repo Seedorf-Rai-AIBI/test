@@ -100,7 +100,8 @@ const Navigation = () => {
 
           {/* Actions - Desktop */}
           <div className="hidden md:flex gap-2">
-            <button 
+            <Link to={'/destinations'}>
+             <button 
               className="group/btn relative px-6 py-2 rounded-xl text-sm font-semibold tracking-wide text-white border-2 border-transparent shadow-sm transition-all duration-200 inline-flex items-center justify-center overflow-hidden hover:-translate-y-1 hover:shadow-xl active:-translate-y-0.5 active:shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-blue-200 focus-visible:outline-offset-2"
               style={{ background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)' }}
             >
@@ -109,6 +110,7 @@ const Navigation = () => {
               />
               <span className="relative">Book Now</span>
             </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -224,12 +226,14 @@ const Navigation = () => {
             </ul>
 
             {/* Mobile Book Now Button */}
-            <button 
+            <Link to={'/destinations'} onClick={closeMobileMenu}>
+             <button 
               className="w-full mt-4 px-6 py-3 rounded-xl text-sm font-semibold tracking-wide text-white shadow-lg transition-all duration-200 active:scale-95"
               style={{ background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)' }}
             >
               Book Now
             </button>
+            </Link>
           </div>
         </div>
       </nav>
